@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import EditRank from '../components/EditRank';
 import { toast } from "react-toastify";
+import RankList from "../../pages/RanksList";
+import AddRank from "./AddRankModal";
+import EditRank from "./EditRankModal";
 
-
-const AddRank = () => {
+const AllRanks = () => {
   const [ranks, setRanks] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editRankData, setEditRankData] = useState(null); // Track data for editing
@@ -31,12 +32,6 @@ const AddRank = () => {
   const [error, setError] = useState(null);
   const [formErrors, setFormErrors] = useState({});
 
-
-  // get ranks
-  useEffect(() => {
-    getRanks();
-  }, []);
-
   const getRanks = async() => {
     let config = {
       method: 'get',
@@ -47,7 +42,7 @@ const AddRank = () => {
     
     axios.request(config)
     .then((response) => {
-      console.log(JSON.stringify(response.data));
+      console.log('ranks respons',JSON.stringify(response.data));
       setRanks(response.data);
       setLoading(false);
     })
@@ -61,11 +56,11 @@ const AddRank = () => {
   // add ranks
   const handleAddRank = async() => {
     const errors = {};
-
+    console.log("formData",formData.rankName)
     if (!formData.rankName) {
       errors.rankName = 'Rank Name is required';
     }
-    else if (!formData.rankIcon.name) {
+    else if (!formData.rankIcon) {
       errors.rankIcon = 'Rank Icon is required';
     }
     else if (!['image/jpeg', 'image/png', 'image/svg+xml', 'image/webp'].includes(formData.rankIcon.type)) {
@@ -96,6 +91,7 @@ const AddRank = () => {
             updatedData.message.push(res.data.message)
             setRanks(updatedData);
             setShowModal(false);
+            closeModal();
             toast.success(res.data.message.rankName + " details saved successfully!", {
               position: "top-right"
             });
@@ -111,7 +107,7 @@ const AddRank = () => {
         setFormErrors(errors);
       }
 
-      closeModal();
+      // closeModal();
   };
 
   // delete rank
@@ -168,6 +164,7 @@ const AddRank = () => {
   };
 
   const closeModal = () => {
+    console.log("aclose");
     setShowModal(false);
     setFormData({
       rankLevel: '',
@@ -179,153 +176,50 @@ const AddRank = () => {
         posts: 0
       }
     });
+    setFormErrors({})
   };
 
+  // get ranks
+  useEffect(() => {
+    getRanks();
+  }, []);
+  
   if (loading) return <p className="loading">Loading...</p>;
   if (error) return <p className="error">Error: {error.message}</p>;
-  return (
+  return(
     <>
       <div className="container">
         <p className="header-description">Add a ranking system to enhance engagement in the community. Simply create a rank and set the criteria to achieve the rank.</p>
         <div className='button-wrapper'>
           <button className="button" onClick={() => setShowModal(true)}>Add New Rank</button>
         </div>
-        {ranks.message.length === 0 ? (
-          <p className="no-ranks">There are no ranks available. Create your first rank.</p>
-        ) : (<table className='custom-table'>
-          <thead>
-            <tr>
-              <th rowSpan="2">Rank Icon</th>
-              <th rowSpan="2">Rank Level</th>
-              <th rowSpan="2">Rank Name</th>
-              <th colSpan="3">Rank Criteria</th>
-              <th rowSpan="2">Action</th>
-            </tr>
-            <tr>
-              <th>Likes</th>
-              <th>Comments</th>
-              <th>Posts</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ranks.message.map(rank => (
-              <tr key={rank.id} className="card">
-                <td>
-                  <img src={`${rank.rankIcon?.url}`} alt={rank.rankIcon?.originalFilename} title={rank.rankIcon?.originalFilename} />
-                </td>
-                <td>{rank.rankLevel}</td>
-                <td>{rank.rankName}</td>              
-                <td>{rank.rankCriteria.likes}</td>
-                <td>{rank.rankCriteria.comments}</td>
-                <td>{rank.rankCriteria.posts}</td>
-                <td>
-                  <button className="button edit-button" onClick={() => handleEdit(rank)}>Edit</button>
-                  <button className="button delete-button" onClick={() => handleDeleteRank(rank.id, rank.rankName)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        
-        
-        
-
+        {ranks && (
+          <RankList 
+            allRanksDetails={ranks}
+            handleEdit={handleEdit}
+            handleDeleteRank={handleDeleteRank}
+          />
         )}
       </div>
-        {showModal && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <button className="close-button" onClick={closeModal}>
-                <span>&times;</span>
-              </button>
-              <h2>Add Rank</h2>
-              <form encType="multipart/form-data">
-                <div className="form-group">
-                  <label htmlFor="rankName">Rank Name <span className='required-icon'>*</span></label>
-                  <input
-                    type="text"
-                    id="rankName"
-                    name="rankName"
-                    value={formData.rankName}
-                    onChange={handleChange}
-                    className="input-field"
-                    required="true"
-                  />
-                  {formErrors.rankName && <span className='validation-error'>{formErrors.rankName}</span>}
-                </div>
-                <div className="form-group">
-                  <label htmlFor="rankIcon">Rank Icon <span className='required-icon'>*</span></label>
-                  
-                  
-                  <input
-                    type="file"
-                    id="rankIcon"
-                    name="rankIcon"
-                    onChange={handleChange}
-                    className="input-field"
-                    accept="image/jpeg, image/png, image/svg+xml"
-                  />
-
-                  {formErrors.rankIcon && <span className='validation-error'>{formErrors.rankIcon}</span>}
-                </div>
-                <div className="form-group">
-                  <label htmlFor="likes">Likes</label>
-                  <input
-                    type="number"
-                    id="likes"
-                    name="likes"
-                    value={formData.rankCriteria.likes}
-                    onChange={handleChange}
-                    className="input-field"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="comments">Comments</label>
-                  <input
-                    type="number"
-                    id="comments"
-                    name="comments"
-                    value={formData.rankCriteria.comments}
-                    onChange={handleChange}
-                    className="input-field"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="posts">Posts</label>
-                  <input
-                    type="number"
-                    id="posts"
-                    name="posts"
-                    value={formData.rankCriteria.posts}
-                    onChange={handleChange}
-                    className="input-field"
-                  />
-                  {formErrors.rankCriteria && <span className='validation-error'>{formErrors.rankCriteria}</span>}
-                </div>
-                <button type="button" className="button" onClick={handleAddRank}>Add Rank</button>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {editRankData && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <span className="close-button" onClick={() => setEditRankData(null)}>&times;</span>
-              <EditRank
-                id={editRankData.id}
-                rankLevel={editRankData.rankLevel}
-                rankName={editRankData.rankName}
-                rankCriteria={editRankData.rankCriteria}
-                rankIcon={editRankData.rankIcon}
-                onUpdate={handleRankUpdate}
-                ranks={ranks}
-              />
-            </div>
-          </div>
-        )}
+      {showModal && (
+        <AddRank 
+          formData={formData}
+          formErrors={formErrors}
+          handleAddRank={handleAddRank}
+          handleChange={handleChange}
+          closeModal={closeModal}
+        />
+      )}
+      {editRankData && (
+        <EditRank
+          allRanksDetails={ranks}
+          editRankData={editRankData}
+          setEditRankData={setEditRankData}
+          handleRankUpdate={handleRankUpdate}
+        />
+      )}
     </>
-  );
-};
+  )
+}
 
-export default AddRank;
+export default AllRanks;
