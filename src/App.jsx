@@ -15,6 +15,8 @@ import Users from "./components/user/UserActivity"
 import AllUsers from './components/user/AllUsers';
 import UserDetails from './pages/UserDetalls';
 
+import 'datatables.net-dt/css/dataTables.dataTables.css';
+import 'datatables.net';
 function App() {
   return (
     <BrowserRouter>

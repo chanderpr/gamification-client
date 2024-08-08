@@ -1,11 +1,19 @@
+import React, { useEffect } from 'react';
+import $ from 'jquery';
 const RankList = ({allRanksDetails, handleEdit, handleDeleteRank}) => {
   console.log("allRanks",allRanksDetails)
+  useEffect(() => {
+    $('#rankTable').DataTable();
+  }, []);
+
   return(
     <>
       {allRanksDetails.message.length === 0 ? (
         <p className="no-ranks">There are no ranks available. Create your first rank.</p>
       ) : (
-        <table className='custom-table'>
+
+        
+        <table className='custom-table' id={'rankTable'}>
           <thead>
             <tr>
               <th rowSpan="2">Rank Icon</th>

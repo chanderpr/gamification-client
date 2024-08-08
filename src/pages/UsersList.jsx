@@ -1,7 +1,11 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
+import $ from 'jquery';
 
 const UsersList = memo(({ allUsers, handleDeleteUser }) => {
   console.log("allUsers", allUsers);
+  useEffect(() => {
+    $('#userListDataTable').DataTable();
+  }, []);  
   return(
     <div className="container">
       <p className="header-description">Details of all the users that has login atleast one on the community.</p>
@@ -10,7 +14,7 @@ const UsersList = memo(({ allUsers, handleDeleteUser }) => {
       </div> */}
       {allUsers.lenght === 0 ? (
         <p className="no-data">There are no users available.</p>
-      ) : (<table className='custom-table'>
+      ) : (<table className='custom-table' id='userListDataTable'>
         <thead>
           <tr>
             <th rowSpan="2">User Id</th>

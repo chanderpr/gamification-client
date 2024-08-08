@@ -4,6 +4,8 @@ import EditRank from '../components/EditRank';
 import { toast } from "react-toastify";
 
 
+
+
 const AddRank = () => {
   const [ranks, setRanks] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -12,6 +14,7 @@ const AddRank = () => {
   // console.log('edit rank data', editRankData)
 
   // console.log('rankd data', ranks)
+
 
   const [formData, setFormData] = useState({
     rankLevel: '',
@@ -192,7 +195,11 @@ const AddRank = () => {
         </div>
         {ranks.message.length === 0 ? (
           <p className="no-ranks">There are no ranks available. Create your first rank.</p>
-        ) : (<table className='custom-table'>
+        ) : (
+        <>
+        
+        <RankDataTable/>
+        <table className='custom-table'>
           <thead>
             <tr>
               <th rowSpan="2">Rank Icon</th>
@@ -225,10 +232,8 @@ const AddRank = () => {
               </tr>
             ))}
           </tbody>
-        </table>
-        
-        
-        
+        </table>        
+        </>        
 
         )}
       </div>
